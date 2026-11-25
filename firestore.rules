@@ -1,0 +1,38 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isAdmin() { return signedIn() && request.auth.token.admin == true; }
+
+    match /listings/{listingId} {
+      allow read: if true;
+      allow create: if signedIn()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.status == "active"
+        && request.resource.data.kind in ["ride", "driver"]
+        && request.resource.data.from is string
+        && request.resource.data.to is string
+        && request.resource.data.name is string
+        && request.resource.data.seats is int
+        && request.resource.data.seats > 0
+        && request.resource.data.seats <= 20
+        && (!("phone" in request.resource.data) || request.resource.data.phone is string);
+      allow update: if signedIn()
+        && (resource.data.ownerId == request.auth.uid || isAdmin())
+        && request.resource.data.ownerId == resource.data.ownerId;
+      allow delete: if signedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+    }
+
+    match /reports/{reportId} {
+      allow create: if signedIn()
+        && request.resource.data.reporterId == request.auth.uid;
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /users/{userId} {
+      allow read: if signedIn() && (request.auth.uid == userId || isAdmin());
+      allow create, update: if signedIn() && request.auth.uid == userId;
+      allow delete: if isAdmin();
+    }
+  }
+}
