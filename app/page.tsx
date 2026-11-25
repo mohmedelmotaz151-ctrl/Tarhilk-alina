@@ -7,7 +7,7 @@ import { auth, db, firebaseReady } from "@/lib/firebase";
 import { CarFront, Users, MapPin, CalendarDays, Armchair, Search, Plus, Phone, MessageCircle, ShieldCheck, ArrowLeft, X, Menu, LogIn, LogOut } from "lucide-react";
 
 type Kind = "ride" | "driver";
-type Listing = { id:string; kind:Kind; from:string; to:string; date:string; seats:number; price:string; name:string; phone?:string; note:string; ownerId?:string };
+type Listing = { id:string; kind:Kind; from:string; to:string; date:string; seats:number; price:string; name:string; phone?:string; note:string; ownerId?:string; status?:string };
 const normalizePhone=(v:string)=>{let n=v.replace(/[^\d+]/g,"");if(n.startsWith("05"))return "+966"+n.slice(1);if(n.startsWith("5"))return "+966"+n;if(n.startsWith("966"))return "+"+n;return n;};
 
 export default function Home(){
